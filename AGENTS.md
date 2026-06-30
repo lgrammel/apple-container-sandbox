@@ -38,6 +38,9 @@ creates an AI SDK-compatible Apple Container-backed sandbox session.
   public API, packaging, environment, or sandbox behavior requirements.
 - Keep package usage examples aligned between the root README,
   `packages/apple-container-sandbox/README.md`, and `apps/example`.
+- Add a Changesets entry in `.changeset/` for user-facing package changes,
+  including public API, runtime behavior, packaging, dependency, and
+  documentation changes that should appear in release notes.
 - Prefer small, focused changes that preserve the existing ESM TypeScript style.
 - Add or update Vitest tests with implementation changes.
 - Name unit tests `filename.test.ts`.
