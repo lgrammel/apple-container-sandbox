@@ -9,6 +9,44 @@ Container CLI. Each session creates a long-lived container from a
 Docker-compatible image, runs commands with `container exec`, and removes the
 container when the session is closed.
 
+## Apple Container setup
+
+`@lgrammel/apple-container-sandbox` shells out to the Apple Container CLI. By
+default, the executable must be available as `container` on `PATH`.
+
+Apple Container requires an Apple silicon Mac running macOS 26 or newer.
+
+Install Apple Container with Homebrew:
+
+```sh
+brew install container
+```
+
+Or download the latest signed installer package from the
+[Apple Container releases page](https://github.com/apple/container/releases).
+
+Start the Apple Container system service:
+
+```sh
+container system start
+```
+
+Verify the CLI is available:
+
+```sh
+container --version
+container list --all
+```
+
+If `container` is installed but not on `PATH`, either add its directory to
+`PATH` or pass an explicit binary path:
+
+```ts
+const appleContainerSandbox = createAppleContainerSandbox({
+  containerBinary: "/opt/homebrew/bin/container",
+});
+```
+
 ## Install
 
 ```sh
