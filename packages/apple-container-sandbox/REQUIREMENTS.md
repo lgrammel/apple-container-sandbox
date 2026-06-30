@@ -17,7 +17,8 @@
 - Published package dependencies must include `@ai-sdk/harness`.
 - Published package metadata must declare the MIT license and point repository,
   homepage, and bug URLs at `https://github.com/lgrammel/apple-container-sandbox`.
-- Package versioning and release notes must be managed with Changesets.
+- Package versioning, release notes, npm publishing, and release tags must be
+  managed with Changesets.
 
 ## Sandbox API
 

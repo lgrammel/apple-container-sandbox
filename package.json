@@ -11,7 +11,8 @@
     "format:check": "oxfmt --check .",
     "lint": "oxlint . --deny-warnings",
     "pack:package": "pnpm --filter @lgrammel/apple-container-sandbox pack",
-    "release": "pnpm build && changeset publish",
+    "release": "node scripts/release.mjs",
+    "release:dry": "node scripts/release.mjs --dry-run",
     "test": "pnpm --recursive test",
     "typecheck": "pnpm --filter @lgrammel/apple-container-sandbox build && pnpm --recursive --if-present typecheck",
     "version": "changeset version"

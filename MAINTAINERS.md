@@ -33,48 +33,41 @@ Use:
 
 Commit the generated `.changeset/*.md` file with the implementation change.
 
-## Pre-release checks
-
-Run the standard checks before versioning or publishing:
-
-```sh
-pnpm format:check
-pnpm lint
-pnpm test
-pnpm build
-pnpm pack:package
-```
-
-`pnpm pack:package` builds the package and creates the tarball that npm will
-receive. Inspect the tarball contents when package files, exports, or README
-content change.
-
-## Versioning
-
-After changesets are merged to `main`, create the release commit locally:
-
-```sh
-pnpm run version
-git add .
-git commit -m "Version packages"
-```
-
-This consumes pending changesets, updates package versions, and writes package
-changelogs. Review the diff before committing.
-
-Use `pnpm run version`, not `pnpm version`. Plain `pnpm version` is pnpm's
-built-in semver command.
-
 ## Publishing
 
-Publish the versioned package from the version commit:
+After changesets are merged to `main`, publish with one command:
 
 ```sh
 pnpm release
 ```
 
-The release script builds the workspace and runs `changeset publish`.
-Changesets publishes packages whose versions are not already present on npm.
+The release script:
+
+- requires a clean `main` branch that is in sync with its upstream;
+- consumes pending changesets with `pnpm run version`;
+- runs `pnpm format:check`, `pnpm lint`, `pnpm test`, and `pnpm build`;
+- verifies package contents with an npm publish dry run;
+- commits the version and changelog updates as
+  `Release @lgrammel/apple-container-sandbox@<version>`;
+- publishes with `changeset publish`;
+- ensures the Changesets release tag exists.
+
+Changesets publishes packages whose versions are not already present on npm and
+creates package tags such as `@lgrammel/apple-container-sandbox@0.0.2` after npm
+accepts the publish.
+
+For npm two-factor auth, pass the OTP through the release script:
+
+```sh
+pnpm release --otp 123456
+```
+
+To verify the checks and npm package contents without versioning, committing,
+publishing, or tagging, run:
+
+```sh
+pnpm release:dry
+```
 
 After publishing, verify the npm registry:
 
@@ -82,11 +75,17 @@ After publishing, verify the npm registry:
 pnpm view @lgrammel/apple-container-sandbox version
 ```
 
-Then push the release commit and tags:
+Then push the release commit and tag:
 
 ```sh
 git push
-git push --tags
+git push origin @lgrammel/apple-container-sandbox@<version>
+```
+
+Alternatively, let the release script push both after a successful publish:
+
+```sh
+pnpm release --push
 ```
 
 ## Failed publishes
