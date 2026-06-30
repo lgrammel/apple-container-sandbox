@@ -45,9 +45,8 @@
 - File writes must create parent directories and overwrite existing files.
 - `run()` must return `exitCode`, `stdout`, and `stderr` without throwing for
   non-zero command exits.
-- `close()` must stop and delete the Apple container unless `keepContainer` is
+- `stop()` must stop and delete the Apple container unless `keepContainer` is
   true.
-- Harness session `stop()` and `destroy()` must be idempotent aliases for
-  `close()`.
+- Harness session `destroy()` must be the same cleanup function as `stop()`.
 - Harness port URL exposure is unsupported and must reject with
   `HarnessCapabilityUnsupportedError`.

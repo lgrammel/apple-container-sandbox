@@ -79,7 +79,7 @@ try {
 
   console.log(result.stdout.trim());
 } finally {
-  await sandboxSession.close();
+  await sandboxSession.stop();
 }
 ```
 
@@ -94,7 +94,7 @@ try {
 - `containerArgs`: extra arguments passed to `container create` before the
   image name.
 - `name`: explicit container name. A random name is generated when omitted.
-- `keepContainer`: keep the container after `close()`. Defaults to `false`.
+- `keepContainer`: keep the container after `stop()`. Defaults to `false`.
 
 ## Provider and Session API
 
@@ -117,4 +117,4 @@ Sessions returned by `createSession()` implement the AI SDK
 Apple Container does not expose public port URLs, so `getPortUrl()` rejects
 with `HarnessCapabilityUnsupportedError`.
 
-It also exposes `containerId`, `image`, and `close()` for direct cleanup.
+It also exposes `image` for direct inspection.

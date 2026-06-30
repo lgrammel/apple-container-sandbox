@@ -31,7 +31,7 @@ export function createAppleContainerSandbox(
     specificationVersion: "harness-sandbox-v1",
     providerId: "apple-container-sandbox",
     async createSession({ abortSignal, onFirstCreate, sessionId } = {}) {
-      const containerId = normalizedOptions.name ?? sessionId ?? `ai-sdk-sandbox-${randomUUID()}`;
+      const id = normalizedOptions.name ?? sessionId ?? `ai-sdk-sandbox-${randomUUID()}`;
       let containerCreated = false;
 
       const keepAliveCommand = [
@@ -46,7 +46,7 @@ export function createAppleContainerSandbox(
           [
             "create",
             "--name",
-            containerId,
+            id,
             ...createEnvArgs(normalizedOptions.env),
             ...normalizedOptions.containerArgs,
             normalizedOptions.image,
@@ -62,18 +62,17 @@ export function createAppleContainerSandbox(
 
         const startResult = await runContainerCli(
           normalizedOptions.containerBinary,
-          ["start", containerId],
+          ["start", id],
           { abortSignal },
         );
 
         assertSuccessfulResult("start sandbox container", startResult);
 
         const session = new AppleContainerSandboxSession({
-          containerArgs: normalizedOptions.containerArgs,
           containerBinary: normalizedOptions.containerBinary,
-          containerId,
           cwd: normalizedOptions.cwd,
           env: normalizedOptions.env,
+          id,
           image: normalizedOptions.image,
           keepContainer: normalizedOptions.keepContainer,
         });
@@ -83,11 +82,9 @@ export function createAppleContainerSandbox(
         return session;
       } catch (error) {
         if (containerCreated) {
-          await runContainerCli(normalizedOptions.containerBinary, [
-            "delete",
-            "--force",
-            containerId,
-          ]).catch(() => {});
+          await runContainerCli(normalizedOptions.containerBinary, ["delete", "--force", id]).catch(
+            () => {},
+          );
         }
 
         throw error;

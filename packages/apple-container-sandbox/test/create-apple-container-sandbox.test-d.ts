@@ -9,7 +9,6 @@ import {
   type AppleContainerSandboxProvider,
 } from "@lgrammel/apple-container-sandbox";
 import type { HarnessV1NetworkSandboxSession, HarnessV1SandboxProvider } from "@ai-sdk/harness";
-import type { Experimental_SandboxSession } from "@ai-sdk/provider-utils";
 
 test("createAppleContainerSandbox exposes the sandbox type", () => {
   const appleContainerSandbox = createAppleContainerSandbox({
@@ -42,7 +41,9 @@ test("sandbox sessions match the AI SDK method shapes", () => {
   expectTypeOf<Session["defaultWorkingDirectory"]>().toEqualTypeOf<string>();
   expectTypeOf<Session["ports"]>().toEqualTypeOf<ReadonlyArray<number>>();
   expectTypeOf<Session["getPortUrl"]>().returns.resolves.toEqualTypeOf<string>();
-  expectTypeOf<Session["restricted"]>().returns.toEqualTypeOf<Experimental_SandboxSession>();
+  expectTypeOf<Session["restricted"]>().returns.toEqualTypeOf<
+    ReturnType<HarnessV1NetworkSandboxSession["restricted"]>
+  >();
   expectTypeOf<Session["stop"]>().returns.resolves.toEqualTypeOf<void>();
   expectTypeOf<Session["destroy"]>().returns.resolves.toEqualTypeOf<void>();
   expectTypeOf<Session["description"]>().toEqualTypeOf<string>();

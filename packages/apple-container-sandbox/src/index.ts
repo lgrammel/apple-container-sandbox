@@ -1,5 +1,4 @@
 export { AppleContainerSandboxError } from "./apple-container-sandbox-error.js";
-export { AppleContainerSandboxNotImplementedError } from "./apple-container-sandbox-not-implemented-error.js";
 export { appleContainerSandboxPackageName } from "./apple-container-sandbox-package-name.js";
 export { AppleContainerSandboxSession } from "./apple-container-sandbox-session.js";
 export { createAppleContainerSandbox } from "./create-apple-container-sandbox.js";

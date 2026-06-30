@@ -36,7 +36,7 @@ export interface AppleContainerSandboxOptions {
   name?: string;
 
   /**
-   * Keep the container after `close()` instead of deleting it.
+   * Keep the container after `stop()` instead of deleting it.
    *
    * @default false
    */

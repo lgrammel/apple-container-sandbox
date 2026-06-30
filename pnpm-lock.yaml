@@ -35,9 +35,6 @@ importers:
       '@ai-sdk/harness':
         specifier: ^1.0.10
         version: 1.0.10(zod@4.4.3)
-      '@ai-sdk/provider-utils':
-        specifier: 5.0.2
-        version: 5.0.2(zod@4.4.3)
     devDependencies:
       '@types/json-schema':
         specifier: 7.0.15

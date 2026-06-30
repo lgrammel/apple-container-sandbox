@@ -41,8 +41,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p test/tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@ai-sdk/harness": "^1.0.10",
-    "@ai-sdk/provider-utils": "5.0.2"
+    "@ai-sdk/harness": "^1.0.10"
   },
   "devDependencies": {
     "@types/json-schema": "7.0.15"

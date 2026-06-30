@@ -1,9 +1,8 @@
 import { mkdtemp, realpath } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 import { HarnessCapabilityUnsupportedError } from "@ai-sdk/harness";
-import type { Experimental_SandboxSession } from "@ai-sdk/provider-utils";
 
 import { createAppleContainerSandbox } from "../src/create-apple-container-sandbox.js";
 import { collectStream } from "./helpers/collect-stream.js";
@@ -26,10 +25,10 @@ test("creates an AI SDK-compatible sandbox session", async () => {
   const sandboxSession = await appleContainerSandbox.createSession();
 
   try {
-    expect(sandboxSession.containerId).toBe("test-session");
     expect(sandboxSession.id).toBe("test-session");
     expect(sandboxSession.defaultWorkingDirectory).toBe(cwd);
     expect(sandboxSession.ports).toEqual([]);
+    expect(sandboxSession.destroy).toBe(sandboxSession.stop);
     expect(sandboxSession.description).toMatch(/fake-node:latest/);
 
     const runResult = await sandboxSession.run({
@@ -75,23 +74,14 @@ test("creates an AI SDK-compatible sandbox session", async () => {
     );
   } finally {
     await sandboxSession.stop().catch(() => {});
-    await sandboxSession.destroy().catch(() => {});
   }
 });
 
 test("uses the harness session id and onFirstCreate hook", async () => {
   const containerBinary = await createFakeContainerCli();
   const cwd = await realpath(await mkdtemp(join(tmpdir(), "apple-container-sandbox-")));
+  let bootstrapCalls = 0;
   let bootstrapOptions: { abortSignal?: AbortSignal } | undefined;
-  const onFirstCreate = vi.fn(
-    async (session: Experimental_SandboxSession, options: { abortSignal?: AbortSignal }) => {
-      bootstrapOptions = options;
-      await session.writeTextFile({
-        path: join(cwd, "bootstrap.txt"),
-        content: "bootstrapped",
-      });
-    },
-  );
 
   const appleContainerSandbox = createAppleContainerSandbox({
     containerBinary,
@@ -99,19 +89,34 @@ test("uses the harness session id and onFirstCreate hook", async () => {
     image: "fake-node:latest",
   });
 
+  type CreateSessionOptions = NonNullable<
+    Parameters<typeof appleContainerSandbox.createSession>[0]
+  >;
+  const onFirstCreate: NonNullable<CreateSessionOptions["onFirstCreate"]> = async (
+    session,
+    options,
+  ) => {
+    bootstrapCalls += 1;
+    bootstrapOptions = options;
+    await session.writeTextFile({
+      path: join(cwd, "bootstrap.txt"),
+      content: "bootstrapped",
+    });
+  };
+
   const sandboxSession = await appleContainerSandbox.createSession({
     sessionId: "harness-session",
     onFirstCreate,
   });
 
   try {
-    expect(sandboxSession.containerId).toBe("harness-session");
-    expect(onFirstCreate).toHaveBeenCalledOnce();
+    expect(sandboxSession.id).toBe("harness-session");
+    expect(bootstrapCalls).toBe(1);
     expect(bootstrapOptions).toEqual({ abortSignal: undefined });
     expect(await sandboxSession.readTextFile({ path: join(cwd, "bootstrap.txt") })).toBe(
       "bootstrapped",
     );
   } finally {
-    await sandboxSession.close().catch(() => {});
+    await sandboxSession.stop().catch(() => {});
   }
 });

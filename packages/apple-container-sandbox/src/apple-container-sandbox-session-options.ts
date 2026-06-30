@@ -1,9 +1,8 @@
 export interface AppleContainerSandboxSessionOptions {
-  containerArgs: string[];
   containerBinary: string;
-  containerId: string;
   cwd: string;
   env: Record<string, string>;
+  id: string;
   image: string;
   keepContainer: boolean;
 }

@@ -1,8 +1,10 @@
 import { spawn as spawnChildProcess } from "node:child_process";
 import { Readable } from "node:stream";
 
-import { HarnessCapabilityUnsupportedError } from "@ai-sdk/harness";
-import type { Experimental_SandboxSession } from "@ai-sdk/provider-utils";
+import {
+  HarnessCapabilityUnsupportedError,
+  type HarnessV1NetworkSandboxSession,
+} from "@ai-sdk/harness";
 
 import { AppleContainerSandboxError } from "./apple-container-sandbox-error.js";
 import type { AppleContainerSandboxProcess } from "./apple-container-sandbox-process.js";
@@ -23,7 +25,6 @@ import { writeContentToSandbox } from "./write-content-to-sandbox.js";
 import type { WriteFileOptions } from "./write-file-options.js";
 
 export class AppleContainerSandboxSession {
-  readonly containerId: string;
   readonly defaultWorkingDirectory: string;
   readonly description: string;
   readonly id: string;
@@ -38,9 +39,9 @@ export class AppleContainerSandboxSession {
 
   constructor({
     containerBinary,
-    containerId,
     cwd,
     env,
+    id,
     image,
     keepContainer,
   }: AppleContainerSandboxSessionOptions) {
@@ -48,14 +49,13 @@ export class AppleContainerSandboxSession {
     this.#cwd = cwd;
     this.#env = env;
     this.#keepContainer = keepContainer;
-    this.containerId = containerId;
     this.defaultWorkingDirectory = cwd;
-    this.id = containerId;
+    this.id = id;
     this.image = image;
     this.description = [
       `Apple Container sandbox running image ${image}.`,
       `Default working directory: ${cwd}.`,
-      `Commands execute through /bin/sh -lc inside container ${containerId}.`,
+      `Commands execute through /bin/sh -lc inside container ${id}.`,
     ].join("\n");
   }
 
@@ -85,7 +85,7 @@ export class AppleContainerSandboxSession {
       this.#containerBinary,
       [
         "exec",
-        this.containerId,
+        this.id,
         "/bin/sh",
         "-c",
         [
@@ -146,7 +146,7 @@ export class AppleContainerSandboxSession {
       [
         "exec",
         "--interactive",
-        this.containerId,
+        this.id,
         "/bin/sh",
         "-c",
         'mkdir -p -- "$(dirname -- "$1")" && cat > "$1"',
@@ -195,7 +195,7 @@ export class AppleContainerSandboxSession {
       "exec",
       ...createEnvArgs({ ...this.#env, ...env }),
       ...createWorkingDirectoryArgs(workingDirectory),
-      this.containerId,
+      this.id,
       "/bin/sh",
       "-lc",
       command,
@@ -249,7 +249,7 @@ export class AppleContainerSandboxSession {
     });
   }
 
-  restricted(): Experimental_SandboxSession {
+  restricted(): ReturnType<HarnessV1NetworkSandboxSession["restricted"]> {
     return {
       description: this.description,
       readFile: (options) => this.readFile(options),
@@ -263,15 +263,7 @@ export class AppleContainerSandboxSession {
     };
   }
 
-  async stop(): Promise<void> {
-    await this.close();
-  }
-
-  async destroy(): Promise<void> {
-    await this.close();
-  }
-
-  async close({ force = true }: { force?: boolean } = {}): Promise<void> {
+  readonly stop = async (): Promise<void> => {
     if (this.#closed) {
       return;
     }
@@ -282,24 +274,21 @@ export class AppleContainerSandboxSession {
       return;
     }
 
-    const stop = await runContainerCli(this.#containerBinary, ["stop", this.containerId]);
-
-    const deleteArgs = force
-      ? ["delete", "--force", this.containerId]
-      : ["delete", this.containerId];
-
-    const remove = await runContainerCli(this.#containerBinary, deleteArgs);
+    const stop = await runContainerCli(this.#containerBinary, ["stop", this.id]);
+    const remove = await runContainerCli(this.#containerBinary, ["delete", "--force", this.id]);
 
     if (stop.exitCode !== 0 && remove.exitCode !== 0) {
       assertSuccessfulResult("stop sandbox container", stop);
     }
 
     assertSuccessfulResult("delete sandbox container", remove);
-  }
+  };
+
+  readonly destroy = this.stop;
 
   #assertOpen(): void {
     if (this.#closed) {
-      throw new AppleContainerSandboxError(`Sandbox container ${this.containerId} is closed.`);
+      throw new AppleContainerSandboxError(`Sandbox container ${this.id} is closed.`);
     }
   }
 }

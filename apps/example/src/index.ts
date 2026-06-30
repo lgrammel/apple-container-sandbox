@@ -39,5 +39,5 @@ try {
     throw error;
   }
 } finally {
-  await sandboxSession?.close();
+  await sandboxSession?.stop();
 }
