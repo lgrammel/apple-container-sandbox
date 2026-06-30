@@ -54,4 +54,4 @@ creates an AI SDK-compatible Apple Container-backed sandbox session.
 - Published package files are controlled by
   `packages/apple-container-sandbox/package.json`.
 - The package repository metadata points to
-  `https://github.com/lgrammel/npm-container-sandbox`.
+  `https://github.com/lgrammel/apple-container-sandbox`.

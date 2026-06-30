@@ -144,3 +144,7 @@ Configured ports resolve to local URLs through `getPortUrl()`, for example
 `HarnessCapabilityUnsupportedError`.
 
 It also exposes `image` for direct inspection.
+
+## License
+
+MIT

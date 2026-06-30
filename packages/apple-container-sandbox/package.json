@@ -2,14 +2,14 @@
   "name": "@lgrammel/apple-container-sandbox",
   "version": "0.0.1",
   "description": "AI SDK sandbox provider backed by Apple Container Sandboxes.",
-  "homepage": "https://github.com/lgrammel/npm-container-sandbox/tree/main/packages/apple-container-sandbox#readme",
+  "homepage": "https://github.com/lgrammel/apple-container-sandbox/tree/main/packages/apple-container-sandbox#readme",
   "bugs": {
-    "url": "https://github.com/lgrammel/npm-container-sandbox/issues"
+    "url": "https://github.com/lgrammel/apple-container-sandbox/issues"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lgrammel/npm-container-sandbox.git",
+    "url": "git+https://github.com/lgrammel/apple-container-sandbox.git",
     "directory": "packages/apple-container-sandbox"
   },
   "files": [
