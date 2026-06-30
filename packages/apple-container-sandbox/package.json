@@ -2,35 +2,45 @@
   "name": "@lgrammel/apple-container-sandbox",
   "version": "0.0.0",
   "description": "AI SDK sandbox provider backed by Apple Container Sandboxes.",
-  "type": "module",
-  "license": "UNLICENSED",
-  "sideEffects": false,
-  "main": "./src/index.js",
-  "types": "./src/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./src/index.d.ts",
-      "import": "./src/index.js"
-    }
+  "homepage": "https://github.com/lgrammel/npm-container-sandbox/tree/main/packages/apple-container-sandbox#readme",
+  "bugs": {
+    "url": "https://github.com/lgrammel/npm-container-sandbox/issues"
   },
-  "files": [
-    "src",
-    "README.md",
-    "REQUIREMENTS.md"
-  ],
+  "license": "UNLICENSED",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lgrammel/npm-container-sandbox.git",
     "directory": "packages/apple-container-sandbox"
   },
-  "bugs": {
-    "url": "https://github.com/lgrammel/npm-container-sandbox/issues"
+  "files": [
+    "dist",
+    "!dist/*.tsbuildinfo",
+    "src",
+    "README.md",
+    "REQUIREMENTS.md"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
   },
-  "homepage": "https://github.com/lgrammel/npm-container-sandbox/tree/main/packages/apple-container-sandbox#readme",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "test": "node --test"
+    "build": "tsc -p tsconfig.json",
+    "prepack": "pnpm run build",
+    "test": "pnpm run test:unit && pnpm run test:types",
+    "test:types": "pnpm run build && vitest run --config vitest.config.ts --typecheck.only",
+    "test:unit": "vitest run --config vitest.config.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p test/tsconfig.json --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

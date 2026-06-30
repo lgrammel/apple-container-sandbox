@@ -1,14 +1,26 @@
 {
   "name": "apple-container-sandbox-workspace",
   "private": true,
-  "packageManager": "pnpm@11.9.0",
   "type": "module",
+  "scripts": {
+    "build": "pnpm --recursive --if-present build",
+    "example": "pnpm --filter example start",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint . --deny-warnings",
+    "pack:package": "pnpm --filter @lgrammel/apple-container-sandbox pack",
+    "test": "pnpm --recursive test",
+    "typecheck": "pnpm --filter @lgrammel/apple-container-sandbox build && pnpm --recursive --if-present typecheck"
+  },
+  "devDependencies": {
+    "@types/node": "^26.0.1",
+    "oxfmt": "^0.57.0",
+    "oxlint": "^1.72.0",
+    "typescript": "^6.0.3",
+    "vitest": "4.1.9"
+  },
   "engines": {
     "node": ">=20"
   },
-  "scripts": {
-    "example": "pnpm --filter example start",
-    "pack:package": "pnpm --filter @lgrammel/apple-container-sandbox pack",
-    "test": "pnpm --recursive test"
-  }
+  "packageManager": "pnpm@11.9.0"
 }
