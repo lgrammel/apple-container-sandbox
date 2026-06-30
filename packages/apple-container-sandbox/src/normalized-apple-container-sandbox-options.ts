@@ -6,4 +6,5 @@ export interface NormalizedAppleContainerSandboxOptions {
   image: string;
   keepContainer: boolean;
   name?: string;
+  ports: ReadonlyArray<number>;
 }

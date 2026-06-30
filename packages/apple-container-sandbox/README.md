@@ -63,6 +63,7 @@ import { createAppleContainerSandbox } from "@lgrammel/apple-container-sandbox";
 const appleContainerSandbox = createAppleContainerSandbox({
   image: "node:22",
   cwd: "/workspace",
+  ports: [4100],
 });
 
 const sandboxSession = await appleContainerSandbox.createSession();
@@ -78,10 +79,28 @@ try {
   });
 
   console.log(result.stdout.trim());
+  console.log(await sandboxSession.getPortUrl({ port: 4100 }));
 } finally {
   await sandboxSession.stop();
 }
 ```
+
+## Codex harness example
+
+The `apps/codex-example` package runs
+[`@ai-sdk/harness-codex`](https://github.com/vercel/ai/tree/main/packages/harness-codex)
+inside an Apple Container sandbox. The Codex harness starts a WebSocket bridge
+inside the sandbox, so the sandbox publishes a local bridge port.
+
+```sh
+OPENAI_API_KEY=... pnpm example:codex
+```
+
+Optional environment variables:
+
+- `CODEX_MODEL`: model passed to the Codex harness.
+- `CODEX_BRIDGE_PORT`: local bridge port. Defaults to `4100`.
+- `CODEX_SESSION_ID`: deterministic Apple Container session id.
 
 ## Options
 
@@ -93,6 +112,8 @@ try {
 - `containerBinary`: Apple Container CLI binary. Defaults to `container`.
 - `containerArgs`: extra arguments passed to `container create` before the
   image name.
+- `ports`: TCP ports published on `127.0.0.1` with the same host and container
+  port.
 - `name`: explicit container name. A random name is generated when omitted.
 - `keepContainer`: keep the container after `stop()`. Defaults to `false`.
 
@@ -114,7 +135,8 @@ Sessions returned by `createSession()` implement the AI SDK
 - `restricted`
 - `stop`, `destroy`
 
-Apple Container does not expose public port URLs, so `getPortUrl()` rejects
-with `HarnessCapabilityUnsupportedError`.
+Configured ports resolve to local URLs through `getPortUrl()`, for example
+`ws://127.0.0.1:4100`. Unconfigured ports reject with
+`HarnessCapabilityUnsupportedError`.
 
 It also exposes `image` for direct inspection.

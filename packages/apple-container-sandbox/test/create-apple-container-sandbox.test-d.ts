@@ -21,6 +21,7 @@ test("createAppleContainerSandbox exposes the sandbox type", () => {
     image: "node:22",
     keepContainer: true,
     name: "typed-session",
+    ports: [4100],
   });
 
   expectTypeOf(appleContainerSandbox).toEqualTypeOf<AppleContainerSandbox>();

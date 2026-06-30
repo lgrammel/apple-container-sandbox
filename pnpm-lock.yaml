@@ -24,6 +24,21 @@ importers:
         specifier: 4.1.9
         version: 4.1.9(@types/node@26.0.1)(vite@8.1.0(@types/node@26.0.1))
 
+  apps/codex-example:
+    dependencies:
+      '@ai-sdk/harness':
+        specifier: 1.0.10
+        version: 1.0.10(ws@8.21.0)(zod@4.4.3)
+      '@ai-sdk/harness-codex':
+        specifier: 1.0.10
+        version: 1.0.10(zod@4.4.3)
+      '@lgrammel/apple-container-sandbox':
+        specifier: workspace:*
+        version: link:../../packages/apple-container-sandbox
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+
   apps/example:
     dependencies:
       '@lgrammel/apple-container-sandbox':
@@ -34,7 +49,7 @@ importers:
     dependencies:
       '@ai-sdk/harness':
         specifier: ^1.0.10
-        version: 1.0.10(zod@4.4.3)
+        version: 1.0.10(ws@8.21.0)(zod@4.4.3)
     devDependencies:
       '@types/json-schema':
         specifier: 7.0.15
@@ -44,6 +59,12 @@ packages:
 
   '@ai-sdk/gateway@4.0.6':
     resolution: {integrity: sha512-8GjssUxXeTd8tst2fYXNOFbtNNZFv3sG7aq7wKnQYrU2eB3JFR7np6o4F3Snp/fy/rJZSeH28LvjSWq5wkdL8Q==}
+    engines: {node: '>=22'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/harness-codex@1.0.10':
+    resolution: {integrity: sha512-ENKyLwvHclSlZSPnXJoOSWuvJrFa/gwl9ekb8XiQZsCS2ANnRtKmYg5KHspE0/VPrnlpnm0ZIpLfC7UbyWCelQ==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -803,6 +824,18 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
+  ws@8.21.0:
+    resolution: {integrity: sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   zod@4.4.3:
     resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
@@ -815,12 +848,24 @@ snapshots:
       '@vercel/oidc': 3.2.0
       zod: 4.4.3
 
-  '@ai-sdk/harness@1.0.10(zod@4.4.3)':
+  '@ai-sdk/harness-codex@1.0.10(zod@4.4.3)':
+    dependencies:
+      '@ai-sdk/harness': 1.0.10(ws@8.21.0)(zod@4.4.3)
+      '@ai-sdk/provider-utils': 5.0.2(zod@4.4.3)
+      ws: 8.21.0
+      zod: 4.4.3
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+
+  '@ai-sdk/harness@1.0.10(ws@8.21.0)(zod@4.4.3)':
     dependencies:
       '@ai-sdk/provider': 4.0.1
       '@ai-sdk/provider-utils': 5.0.2(zod@4.4.3)
       ai: 7.0.8(zod@4.4.3)
       zod: 4.4.3
+    optionalDependencies:
+      ws: 8.21.0
 
   '@ai-sdk/provider-utils@5.0.2(zod@4.4.3)':
     dependencies:
@@ -1333,5 +1378,7 @@ snapshots:
     dependencies:
       siginfo: 2.0.0
       stackback: 0.0.2
+
+  ws@8.21.0: {}
 
   zod@4.4.3: {}

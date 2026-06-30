@@ -5,6 +5,7 @@
   "scripts": {
     "build": "pnpm --recursive --if-present build",
     "example": "pnpm --filter example start",
+    "example:codex": "pnpm --filter codex-example start",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint . --deny-warnings",

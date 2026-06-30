@@ -24,9 +24,12 @@
   contract with specification version `harness-sandbox-v1`.
 - The sandbox must preserve the supplied options object.
 - Supported option fields are `image`, `cwd`, `env`, `containerBinary`,
-  `containerArgs`, `name`, and `keepContainer`.
+  `containerArgs`, `ports`, `name`, and `keepContainer`.
 - `image` defaults to `alpine:latest`.
 - `cwd` defaults to `/workspace`.
+- `ports` defaults to an empty array.
+- `ports` values must be unique in the normalized session surface and must be
+  valid TCP port numbers.
 
 ## Sandbox Sessions
 
@@ -48,5 +51,7 @@
 - `stop()` must stop and delete the Apple container unless `keepContainer` is
   true.
 - Harness session `destroy()` must be the same cleanup function as `stop()`.
-- Harness port URL exposure is unsupported and must reject with
-  `HarnessCapabilityUnsupportedError`.
+- Configured ports must be passed to `container create` with `--publish` and
+  published on `127.0.0.1` with the same host and container port.
+- `getPortUrl()` must resolve configured ports to local URLs and must reject
+  unconfigured ports with `HarnessCapabilityUnsupportedError`.

@@ -1,4 +1,4 @@
-import { mkdtemp, realpath } from "node:fs/promises";
+import { mkdtemp, readFile, realpath } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "vitest";
@@ -75,6 +75,72 @@ test("creates an AI SDK-compatible sandbox session", async () => {
   } finally {
     await sandboxSession.stop().catch(() => {});
   }
+});
+
+test("publishes configured ports and resolves local port urls", async () => {
+  const containerBinary = await createFakeContainerCli();
+  const cwd = await realpath(await mkdtemp(join(tmpdir(), "apple-container-sandbox-")));
+  const logPath = join(cwd, "container-commands.ndjson");
+  const previousLogPath = process.env.FAKE_CONTAINER_LOG;
+  process.env.FAKE_CONTAINER_LOG = logPath;
+
+  const appleContainerSandbox = createAppleContainerSandbox({
+    containerBinary,
+    cwd,
+    image: "fake-node:latest",
+    name: "port-session",
+    ports: [4100, 4100, 5200],
+  });
+
+  try {
+    const sandboxSession = await appleContainerSandbox.createSession();
+
+    try {
+      expect(sandboxSession.ports).toEqual([4100, 5200]);
+      expect(await sandboxSession.getPortUrl({ port: 4100 })).toBe("http://127.0.0.1:4100");
+      expect(await sandboxSession.getPortUrl({ port: 5200, protocol: "ws" })).toBe(
+        "ws://127.0.0.1:5200",
+      );
+      await expect(sandboxSession.getPortUrl({ port: 9999 })).rejects.toBeInstanceOf(
+        HarnessCapabilityUnsupportedError,
+      );
+    } finally {
+      await sandboxSession.stop().catch(() => {});
+    }
+
+    const commands = (await readFile(logPath, "utf8"))
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line) as string[]);
+
+    expect(commands[0]).toEqual([
+      "create",
+      "--name",
+      "port-session",
+      "--publish",
+      "127.0.0.1:4100:4100/tcp",
+      "--publish",
+      "127.0.0.1:5200:5200/tcp",
+      "fake-node:latest",
+      "/bin/sh",
+      "-lc",
+      expect.stringContaining("while :; do sleep"),
+    ]);
+  } finally {
+    if (previousLogPath == null) {
+      delete process.env.FAKE_CONTAINER_LOG;
+    } else {
+      process.env.FAKE_CONTAINER_LOG = previousLogPath;
+    }
+  }
+});
+
+test("rejects invalid port options", () => {
+  expect(() =>
+    createAppleContainerSandbox({
+      ports: [0],
+    }),
+  ).toThrow(RangeError);
 });
 
 test("uses the harness session id and onFirstCreate hook", async () => {

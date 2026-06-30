@@ -5,4 +5,5 @@ export interface AppleContainerSandboxSessionOptions {
   id: string;
   image: string;
   keepContainer: boolean;
+  ports: ReadonlyArray<number>;
 }

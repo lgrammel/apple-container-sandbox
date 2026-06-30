@@ -29,7 +29,7 @@ export class AppleContainerSandboxSession {
   readonly description: string;
   readonly id: string;
   readonly image: string;
-  readonly ports: ReadonlyArray<number> = [];
+  readonly ports: ReadonlyArray<number>;
 
   #closed = false;
   #containerBinary: string;
@@ -44,6 +44,7 @@ export class AppleContainerSandboxSession {
     id,
     image,
     keepContainer,
+    ports,
   }: AppleContainerSandboxSessionOptions) {
     this.#containerBinary = containerBinary;
     this.#cwd = cwd;
@@ -52,6 +53,7 @@ export class AppleContainerSandboxSession {
     this.defaultWorkingDirectory = cwd;
     this.id = id;
     this.image = image;
+    this.ports = ports;
     this.description = [
       `Apple Container sandbox running image ${image}.`,
       `Default working directory: ${cwd}.`,
@@ -240,13 +242,15 @@ export class AppleContainerSandboxSession {
     };
   }
 
-  async getPortUrl(_options: {
-    port: number;
-    protocol?: "http" | "https" | "ws";
-  }): Promise<string> {
-    throw new HarnessCapabilityUnsupportedError({
-      message: "Apple Container sandbox sessions do not expose public port URLs.",
-    });
+  async getPortUrl(options: { port: number; protocol?: "http" | "https" | "ws" }): Promise<string> {
+    if (!this.ports.includes(options.port)) {
+      throw new HarnessCapabilityUnsupportedError({
+        message: `Apple Container sandbox session ${this.id} does not expose port ${options.port}.`,
+      });
+    }
+
+    const protocol = options.protocol ?? "http";
+    return `${protocol}://127.0.0.1:${options.port}`;
   }
 
   restricted(): ReturnType<HarnessV1NetworkSandboxSession["restricted"]> {

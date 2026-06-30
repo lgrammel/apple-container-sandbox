@@ -1,0 +1,17 @@
+{
+  "name": "codex-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "pnpm --filter @lgrammel/apple-container-sandbox build && pnpm run build && node dist/index.js",
+    "test": "pnpm --filter @lgrammel/apple-container-sandbox build && pnpm run build && node --test",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/harness": "1.0.10",
+    "@ai-sdk/harness-codex": "1.0.10",
+    "@lgrammel/apple-container-sandbox": "workspace:*",
+    "zod": "^4.4.3"
+  }
+}

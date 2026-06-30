@@ -31,6 +31,11 @@ export interface AppleContainerSandboxOptions {
   containerArgs?: string[];
 
   /**
+   * TCP ports to publish on 127.0.0.1 with the same host and container port.
+   */
+  ports?: ReadonlyArray<number>;
+
+  /**
    * Explicit container name. A random name is generated when omitted.
    */
   name?: string;

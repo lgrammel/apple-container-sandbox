@@ -10,10 +10,14 @@ export async function createFakeContainerCli() {
     containerBinary,
     `#!/usr/bin/env node
 import { spawn } from "node:child_process";
-import { mkdirSync } from "node:fs";
+import { appendFileSync, mkdirSync } from "node:fs";
 
 const args = process.argv.slice(2);
 const command = args[0];
+
+if (process.env.FAKE_CONTAINER_LOG) {
+  appendFileSync(process.env.FAKE_CONTAINER_LOG, JSON.stringify(args) + "\\n");
+}
 
 if (["create", "start", "stop", "delete"].includes(command)) {
   process.exit(0);

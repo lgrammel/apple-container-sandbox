@@ -47,3 +47,4 @@ minimumReleaseAgeExclude:
   - "@ai-sdk/provider-utils@5.0.2"
   - "@ai-sdk/provider@4.0.1"
   - ai@7.0.8
+  - "@ai-sdk/harness-codex@1.0.10"

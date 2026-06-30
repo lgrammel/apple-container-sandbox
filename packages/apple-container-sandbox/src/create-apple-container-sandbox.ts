@@ -23,6 +23,7 @@ export function createAppleContainerSandbox(
     image: options.image ?? defaultImage,
     keepContainer: options.keepContainer ?? false,
     name: options.name,
+    ports: normalizePorts(options.ports ?? []),
   };
 
   return {
@@ -48,6 +49,7 @@ export function createAppleContainerSandbox(
             "--name",
             id,
             ...createEnvArgs(normalizedOptions.env),
+            ...createPortArgs(normalizedOptions.ports),
             ...normalizedOptions.containerArgs,
             normalizedOptions.image,
             "/bin/sh",
@@ -75,6 +77,7 @@ export function createAppleContainerSandbox(
           id,
           image: normalizedOptions.image,
           keepContainer: normalizedOptions.keepContainer,
+          ports: normalizedOptions.ports,
         });
 
         await onFirstCreate?.(session.restricted(), { abortSignal });
@@ -91,4 +94,18 @@ export function createAppleContainerSandbox(
       }
     },
   };
+}
+
+function normalizePorts(ports: ReadonlyArray<number>): ReadonlyArray<number> {
+  return Array.from(new Set(ports)).map((port) => {
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      throw new RangeError(`Invalid Apple Container sandbox port: ${port}.`);
+    }
+
+    return port;
+  });
+}
+
+function createPortArgs(ports: ReadonlyArray<number>): string[] {
+  return ports.flatMap((port) => ["--publish", `127.0.0.1:${port}:${port}/tcp`]);
 }
