@@ -1,0 +1,17 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .: {}
+
+  apps/example:
+    dependencies:
+      '@lgrammel/apple-container-sandbox':
+        specifier: workspace:*
+        version: link:../../packages/apple-container-sandbox
+
+  packages/apple-container-sandbox: {}

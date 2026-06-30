@@ -1,0 +1,35 @@
+{
+  "name": "@lgrammel/apple-container-sandbox",
+  "version": "0.0.0",
+  "description": "AI SDK sandbox provider backed by Apple Container Sandboxes.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "sideEffects": false,
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lgrammel/npm-container-sandbox.git",
+    "directory": "packages/apple-container-sandbox"
+  },
+  "bugs": {
+    "url": "https://github.com/lgrammel/npm-container-sandbox/issues"
+  },
+  "homepage": "https://github.com/lgrammel/npm-container-sandbox/tree/main/packages/apple-container-sandbox#readme",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "apple-container-sandbox-workspace",
+  "private": true,
+  "packageManager": "pnpm@11.9.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "example": "pnpm --filter example start",
+    "pack:package": "pnpm --filter @lgrammel/apple-container-sandbox pack",
+    "test": "pnpm --recursive test"
+  }
+}
