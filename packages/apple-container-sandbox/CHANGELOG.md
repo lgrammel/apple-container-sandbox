@@ -1,5 +1,11 @@
 # @lgrammel/apple-container-sandbox
 
+## 0.1.0
+
+### Minor Changes
+
+- 305b37f: Add a top-level `memory` option that passes through to `container create --memory`.
+
 ## 0.0.2
 
 ### Patch Changes
