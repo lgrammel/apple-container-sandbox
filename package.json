@@ -4,16 +4,20 @@
   "type": "module",
   "scripts": {
     "build": "pnpm --recursive --if-present build",
+    "changeset": "changeset",
     "example": "pnpm --filter example start",
     "example:codex": "pnpm --filter codex-example start",
     "format": "oxfmt .",
     "format:check": "oxfmt --check .",
     "lint": "oxlint . --deny-warnings",
     "pack:package": "pnpm --filter @lgrammel/apple-container-sandbox pack",
+    "release": "pnpm build && changeset publish",
     "test": "pnpm --recursive test",
-    "typecheck": "pnpm --filter @lgrammel/apple-container-sandbox build && pnpm --recursive --if-present typecheck"
+    "typecheck": "pnpm --filter @lgrammel/apple-container-sandbox build && pnpm --recursive --if-present typecheck",
+    "version": "changeset version"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
     "@types/node": "^26.0.1",
     "oxfmt": "^0.57.0",
     "oxlint": "^1.72.0",

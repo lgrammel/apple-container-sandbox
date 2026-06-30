@@ -15,6 +15,7 @@
 - Published package exports must point to `dist/index.js` and
   `dist/index.d.ts`.
 - Published package dependencies must include `@ai-sdk/harness`.
+- Package versioning and release notes must be managed with Changesets.
 
 ## Sandbox API
 
