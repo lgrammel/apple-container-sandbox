@@ -6,6 +6,7 @@ import { getAbortReason } from "./get-abort-reason.js";
 export function waitForChildProcess(
   child: ChildProcess,
   abortSignal: AbortSignal | undefined,
+  command: string[],
 ): Promise<{ exitCode: number }> {
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -38,9 +39,15 @@ export function waitForChildProcess(
     abortSignal?.addEventListener("abort", onAbort, { once: true });
 
     child.once("error", (error) => {
+      const message =
+        "code" in error && error.code === "ENOENT"
+          ? `Apple Container CLI executable "${command[0]}" was not found on PATH. Install Apple Container or pass a custom containerBinary option.`
+          : `Failed to start Apple container CLI: ${error.message}`;
+
       settleReject(
-        new AppleContainerSandboxError(`Failed to start Apple container CLI: ${error.message}`, {
+        new AppleContainerSandboxError(message, {
           cause: error,
+          command,
         }),
       );
     });

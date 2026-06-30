@@ -1,14 +1,20 @@
-import { createAppleContainerSandbox } from "@lgrammel/apple-container-sandbox";
+import {
+  AppleContainerSandboxError,
+  createAppleContainerSandbox,
+  type AppleContainerSandboxSession,
+} from "@lgrammel/apple-container-sandbox";
 
-const sandboxProvider = createAppleContainerSandbox({
+const appleContainerSandbox = createAppleContainerSandbox({
   image: "node:22",
   cwd: "/workspace",
 });
 
-const sandbox = await sandboxProvider.createSandbox();
+let sandboxSession: AppleContainerSandboxSession | undefined;
 
 try {
-  await sandbox.writeTextFile({
+  sandboxSession = await appleContainerSandbox.createSession();
+
+  await sandboxSession.writeTextFile({
     path: "/workspace/example.js",
     content: [
       "const message = 'Hello from Apple Container Sandbox';",
@@ -19,12 +25,19 @@ try {
     ].join("\n"),
   });
 
-  const runResult = await sandbox.run({
+  const runResult = await sandboxSession.run({
     command: "node /workspace/example.js",
   });
 
   console.log(runResult.stdout.trim());
-  console.log(await sandbox.readTextFile({ path: "/workspace/result.txt" }));
+  console.log(await sandboxSession.readTextFile({ path: "/workspace/result.txt" }));
+} catch (error) {
+  if (error instanceof AppleContainerSandboxError) {
+    console.error(error.message);
+    process.exitCode = 1;
+  } else {
+    throw error;
+  }
 } finally {
-  await sandbox.close();
+  await sandboxSession?.close();
 }

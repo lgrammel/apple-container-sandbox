@@ -197,7 +197,10 @@ export class AppleContainerSandboxSession {
       stdio: ["ignore", "pipe", "pipe"],
     });
 
-    const waitPromise = waitForChildProcess(child, abortSignal);
+    const waitPromise = waitForChildProcess(child, abortSignal, [
+      this.#containerBinary,
+      ...cliArgs,
+    ]);
 
     return {
       stdout: Readable.toWeb(child.stdout) as ReadableStream<Uint8Array>,

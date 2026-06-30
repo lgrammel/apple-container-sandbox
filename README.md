@@ -22,26 +22,26 @@ pnpm add @lgrammel/apple-container-sandbox
 ```ts
 import { createAppleContainerSandbox } from "@lgrammel/apple-container-sandbox";
 
-const sandboxProvider = createAppleContainerSandbox({
+const appleContainerSandbox = createAppleContainerSandbox({
   image: "node:22",
   cwd: "/workspace",
 });
 
-const sandbox = await sandboxProvider.createSandbox();
+const sandboxSession = await appleContainerSandbox.createSession();
 
 try {
-  await sandbox.writeTextFile({
+  await sandboxSession.writeTextFile({
     path: "/workspace/example.js",
     content: "console.log('Hello from the sandbox');",
   });
 
-  const result = await sandbox.run({
+  const result = await sandboxSession.run({
     command: "node /workspace/example.js",
   });
 
   console.log(result.stdout.trim());
 } finally {
-  await sandbox.close();
+  await sandboxSession.close();
 }
 ```
 

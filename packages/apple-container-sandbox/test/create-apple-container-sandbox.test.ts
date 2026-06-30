@@ -11,7 +11,7 @@ test("creates an AI SDK-compatible sandbox session", async () => {
   const containerBinary = await createFakeContainerCli();
   const cwd = await realpath(await mkdtemp(join(tmpdir(), "apple-container-sandbox-")));
 
-  const sandboxProvider = createAppleContainerSandbox({
+  const appleContainerSandbox = createAppleContainerSandbox({
     containerBinary,
     cwd,
     env: {
@@ -21,13 +21,13 @@ test("creates an AI SDK-compatible sandbox session", async () => {
     name: "test-session",
   });
 
-  const sandbox = await sandboxProvider.createSandbox();
+  const sandboxSession = await appleContainerSandbox.createSession();
 
   try {
-    expect(sandbox.containerId).toBe("test-session");
-    expect(sandbox.description).toMatch(/fake-node:latest/);
+    expect(sandboxSession.containerId).toBe("test-session");
+    expect(sandboxSession.description).toMatch(/fake-node:latest/);
 
-    const runResult = await sandbox.run({
+    const runResult = await sandboxSession.run({
       command: "printf '%s' \"$BASE_VALUE:$COMMAND_VALUE:$(pwd)\"",
       env: {
         COMMAND_VALUE: "command",
@@ -41,26 +41,26 @@ test("creates an AI SDK-compatible sandbox session", async () => {
     });
 
     const filePath = join(cwd, "nested", "message.txt");
-    await sandbox.writeTextFile({
+    await sandboxSession.writeTextFile({
       path: filePath,
       content: "one\ntwo\nthree\n",
     });
 
-    expect(await sandbox.readTextFile({ path: filePath, startLine: 2, endLine: 3 })).toBe(
+    expect(await sandboxSession.readTextFile({ path: filePath, startLine: 2, endLine: 3 })).toBe(
       "two\nthree",
     );
 
-    const bytes = await sandbox.readBinaryFile({ path: filePath });
+    const bytes = await sandboxSession.readBinaryFile({ path: filePath });
     expect(new TextDecoder().decode(bytes ?? undefined)).toBe("one\ntwo\nthree\n");
 
-    const stream = await sandbox.readFile({ path: filePath });
+    const stream = await sandboxSession.readFile({ path: filePath });
     expect(stream).not.toBeNull();
     expect(new TextDecoder().decode(await collectStream(stream))).toBe("one\ntwo\nthree\n");
 
-    expect(await sandbox.readTextFile({ path: join(cwd, "missing.txt") })).toBeNull();
+    expect(await sandboxSession.readTextFile({ path: join(cwd, "missing.txt") })).toBeNull();
 
-    expect((await sandbox.run({ command: "exit 7" })).exitCode).toBe(7);
+    expect((await sandboxSession.run({ command: "exit 7" })).exitCode).toBe(7);
   } finally {
-    await sandbox.close().catch(() => {});
+    await sandboxSession.close().catch(() => {});
   }
 });

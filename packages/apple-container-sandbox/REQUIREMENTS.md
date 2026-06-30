@@ -10,16 +10,16 @@
 
 ## Packaging
 
-- Package source must be TypeScript in `src/index.ts`.
+- Package source must be TypeScript in `src`.
 - `tsc` must emit the package entry point and declarations to `dist`.
 - Published package exports must point to `dist/index.js` and
   `dist/index.d.ts`.
 
-## Provider API
+## Sandbox API
 
-- `createAppleContainerSandbox(options?)` must return a provider named
+- `createAppleContainerSandbox(options?)` must return a sandbox named
   `apple-container-sandbox`.
-- The provider must preserve the supplied options object.
+- The sandbox must preserve the supplied options object.
 - Supported option fields are `image`, `cwd`, `env`, `containerBinary`,
   `containerArgs`, `name`, and `keepContainer`.
 - `image` defaults to `alpine:latest`.
@@ -27,7 +27,7 @@
 
 ## Sandbox Sessions
 
-- `createSandbox()` must create and start a long-lived Apple container.
+- `createSession()` must create and start a long-lived Apple container.
 - Sandbox commands must execute through `container exec` and `/bin/sh -lc`.
 - Session-level `env` values must apply to commands, and per-command `env`
   values must take precedence.

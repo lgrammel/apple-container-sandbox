@@ -12,7 +12,7 @@ sandbox provider backed by Apple Container Sandboxes.
 - Root `README.md`: user-facing project overview only
 
 The implementation is TypeScript source compiled to ESM JavaScript in `dist`.
-`createAppleContainerSandbox` returns a provider object whose `createSandbox()`
+`createAppleContainerSandbox` returns a sandbox object whose `createSession()`
 creates an AI SDK-compatible Apple Container-backed sandbox session.
 
 ## Commands

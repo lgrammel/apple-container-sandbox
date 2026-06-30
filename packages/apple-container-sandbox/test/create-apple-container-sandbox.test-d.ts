@@ -1,6 +1,7 @@
 import { expectTypeOf, test } from "vitest";
 
 import {
+  type AppleContainerSandbox,
   AppleContainerSandboxSession,
   createAppleContainerSandbox,
   type AppleContainerSandboxOptions,
@@ -8,8 +9,8 @@ import {
   type AppleContainerSandboxProvider,
 } from "@lgrammel/apple-container-sandbox";
 
-test("createAppleContainerSandbox exposes the provider type", () => {
-  const provider = createAppleContainerSandbox({
+test("createAppleContainerSandbox exposes the sandbox type", () => {
+  const appleContainerSandbox = createAppleContainerSandbox({
     containerArgs: ["--cpus", "2"],
     containerBinary: "container",
     cwd: "/workspace",
@@ -21,13 +22,14 @@ test("createAppleContainerSandbox exposes the provider type", () => {
     name: "typed-session",
   });
 
-  expectTypeOf(provider).toEqualTypeOf<AppleContainerSandboxProvider>();
-  expectTypeOf(provider.name).toEqualTypeOf<"apple-container-sandbox">();
-  expectTypeOf(provider.options).toEqualTypeOf<AppleContainerSandboxOptions>();
+  expectTypeOf(appleContainerSandbox).toEqualTypeOf<AppleContainerSandbox>();
+  expectTypeOf(appleContainerSandbox).toEqualTypeOf<AppleContainerSandboxProvider>();
+  expectTypeOf(appleContainerSandbox.name).toEqualTypeOf<"apple-container-sandbox">();
+  expectTypeOf(appleContainerSandbox.options).toEqualTypeOf<AppleContainerSandboxOptions>();
 });
 
 test("sandbox sessions match the AI SDK method shapes", () => {
-  type Session = Awaited<ReturnType<AppleContainerSandboxProvider["createSandbox"]>>;
+  type Session = Awaited<ReturnType<AppleContainerSandbox["createSession"]>>;
 
   expectTypeOf<Session>().toEqualTypeOf<AppleContainerSandboxSession>();
   expectTypeOf<Session["description"]>().toEqualTypeOf<string>();

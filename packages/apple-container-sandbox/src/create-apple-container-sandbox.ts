@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 
 import { AppleContainerSandboxSession } from "./apple-container-sandbox-session.js";
+import type { AppleContainerSandbox } from "./apple-container-sandbox.js";
 import type { AppleContainerSandboxOptions } from "./apple-container-sandbox-options.js";
-import type { AppleContainerSandboxProvider } from "./apple-container-sandbox-provider.js";
 import { assertSuccessfulResult } from "./assert-successful-result.js";
 import { createEnvArgs } from "./create-env-args.js";
 import { defaultContainerBinary } from "./default-container-binary.js";
@@ -14,7 +14,7 @@ import { shellQuote } from "./shell-quote.js";
 
 export function createAppleContainerSandbox(
   options: AppleContainerSandboxOptions = {},
-): AppleContainerSandboxProvider {
+): AppleContainerSandbox {
   const normalizedOptions: NormalizedAppleContainerSandboxOptions = {
     containerArgs: options.containerArgs ?? [],
     containerBinary: options.containerBinary ?? defaultContainerBinary,
@@ -28,7 +28,7 @@ export function createAppleContainerSandbox(
   return {
     name: "apple-container-sandbox",
     options,
-    async createSandbox({ abortSignal } = {}) {
+    async createSession({ abortSignal } = {}) {
       const containerId = normalizedOptions.name ?? `ai-sdk-sandbox-${randomUUID()}`;
       let containerCreated = false;
 

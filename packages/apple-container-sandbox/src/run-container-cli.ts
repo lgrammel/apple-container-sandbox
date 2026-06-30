@@ -12,12 +12,13 @@ export async function runContainerCli(
   { abortSignal, stdin }: RunContainerCliOptions = {},
 ): Promise<ContainerCliResult> {
   abortSignal?.throwIfAborted();
+  const command = [containerBinary, ...args];
 
   const child = spawnChildProcess(containerBinary, args, {
     stdio: ["pipe", "pipe", "pipe"],
   });
 
-  const waitPromise = waitForChildProcess(child, abortSignal);
+  const waitPromise = waitForChildProcess(child, abortSignal, command);
   const stdinPromise = pipeStdin(child.stdin, stdin).catch((error: unknown) => {
     child.kill("SIGTERM");
     throw error;
@@ -31,7 +32,7 @@ export async function runContainerCli(
   ]);
 
   return {
-    command: [containerBinary, ...args],
+    command,
     exitCode,
     stdout,
     stderr,
