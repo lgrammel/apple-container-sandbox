@@ -12,11 +12,16 @@ Before running it, verify the Apple Container CLI is available:
 container --version
 ```
 
-Set an API key and run the example:
+Copy the example environment file, set an API key in `.env`, and run the
+example:
 
 ```sh
-OPENAI_API_KEY=... pnpm example:codex
+cp apps/codex-example/.env.example apps/codex-example/.env
+pnpm example:codex
 ```
+
+The example loads `apps/codex-example/.env` with `dotenv`. Set one of
+`OPENAI_API_KEY`, `CODEX_API_KEY`, or `AI_GATEWAY_API_KEY`.
 
 Optional environment variables:
 

@@ -93,8 +93,12 @@ inside an Apple Container sandbox. The Codex harness starts a WebSocket bridge
 inside the sandbox, so the sandbox publishes a local bridge port.
 
 ```sh
-OPENAI_API_KEY=... pnpm example:codex
+cp apps/codex-example/.env.example apps/codex-example/.env
+pnpm example:codex
 ```
+
+The example loads `apps/codex-example/.env` with `dotenv`. Set one of
+`OPENAI_API_KEY`, `CODEX_API_KEY`, or `AI_GATEWAY_API_KEY`.
 
 Optional environment variables:
 

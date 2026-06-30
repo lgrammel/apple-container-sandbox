@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { createCodex } from "@ai-sdk/harness-codex";
 import type { HarnessV1Bootstrap, HarnessV1StreamPart } from "@ai-sdk/harness";
 import {
