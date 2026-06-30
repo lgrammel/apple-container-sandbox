@@ -1,6 +1,6 @@
 {
   "name": "@lgrammel/apple-container-sandbox",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "AI SDK sandbox provider backed by Apple Container Sandboxes.",
   "homepage": "https://github.com/lgrammel/apple-container-sandbox/tree/main/packages/apple-container-sandbox#readme",
   "bugs": {

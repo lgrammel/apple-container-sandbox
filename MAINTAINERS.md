@@ -9,6 +9,9 @@ This repository publishes `@lgrammel/apple-container-sandbox` with Changesets.
 - Make sure `pnpm install` has completed.
 - Make sure you are authenticated to npm with an account that can publish
   `@lgrammel/apple-container-sandbox`.
+- If publishing fails with an OTP or non-interactive auth error, run
+  `npm login` first. Press Enter when npm prompts to open the browser, complete
+  the browser login, then rerun the publish command.
 - Release from `main` after the branch is up to date with `origin/main`.
 
 ## Adding changesets
