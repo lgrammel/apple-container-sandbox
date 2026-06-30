@@ -28,8 +28,10 @@ export function createAppleContainerSandbox(
   return {
     name: "apple-container-sandbox",
     options,
-    async createSession({ abortSignal } = {}) {
-      const containerId = normalizedOptions.name ?? `ai-sdk-sandbox-${randomUUID()}`;
+    specificationVersion: "harness-sandbox-v1",
+    providerId: "apple-container-sandbox",
+    async createSession({ abortSignal, onFirstCreate, sessionId } = {}) {
+      const containerId = normalizedOptions.name ?? sessionId ?? `ai-sdk-sandbox-${randomUUID()}`;
       let containerCreated = false;
 
       const keepAliveCommand = [
@@ -66,7 +68,7 @@ export function createAppleContainerSandbox(
 
         assertSuccessfulResult("start sandbox container", startResult);
 
-        return new AppleContainerSandboxSession({
+        const session = new AppleContainerSandboxSession({
           containerArgs: normalizedOptions.containerArgs,
           containerBinary: normalizedOptions.containerBinary,
           containerId,
@@ -75,6 +77,10 @@ export function createAppleContainerSandbox(
           image: normalizedOptions.image,
           keepContainer: normalizedOptions.keepContainer,
         });
+
+        await onFirstCreate?.(session.restricted(), { abortSignal });
+
+        return session;
       } catch (error) {
         if (containerCreated) {
           await runContainerCli(normalizedOptions.containerBinary, [

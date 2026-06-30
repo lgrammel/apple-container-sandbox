@@ -46,7 +46,7 @@ creates an AI SDK-compatible Apple Container-backed sandbox session.
 ## Package Notes
 
 - Root package manager is `pnpm@11.9.0`.
-- Runtime target is Node.js 20 or newer.
+- Runtime target is Node.js 22 or newer.
 - TypeScript is installed at the workspace root and package output is generated
   with `tsc`.
 - Formatting uses `oxfmt`; linting uses `oxlint`.

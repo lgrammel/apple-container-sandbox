@@ -42,3 +42,8 @@ minimumReleaseAgeExclude:
   - "@oxlint/binding-win32-x64-msvc@1.72.0"
   - oxfmt@0.57.0
   - oxlint@1.72.0
+  - "@ai-sdk/gateway@4.0.6"
+  - "@ai-sdk/harness@1.0.10"
+  - "@ai-sdk/provider-utils@5.0.2"
+  - "@ai-sdk/provider@4.0.1"
+  - ai@7.0.8

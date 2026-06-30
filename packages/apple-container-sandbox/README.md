@@ -4,8 +4,8 @@ AI SDK sandbox provider backed by Apple Container Sandboxes.
 
 ## Status
 
-This package implements the AI SDK sandbox session shape using the Apple
-Container CLI. Each session creates a long-lived container from a
+This package implements the AI SDK Harness V1 sandbox provider shape using the
+Apple Container CLI. Each session creates a long-lived container from a
 Docker-compatible image, runs commands with `container exec`, and removes the
 container when the session is closed.
 
@@ -53,6 +53,8 @@ const appleContainerSandbox = createAppleContainerSandbox({
 pnpm add @lgrammel/apple-container-sandbox
 ```
 
+Requires Node.js 22 or newer.
+
 ## Usage
 
 ```ts
@@ -94,15 +96,25 @@ try {
 - `name`: explicit container name. A random name is generated when omitted.
 - `keepContainer`: keep the container after `close()`. Defaults to `false`.
 
-## Session API
+## Provider and Session API
+
+`createAppleContainerSandbox()` returns an AI SDK
+`HarnessV1SandboxProvider`.
 
 Sessions returned by `createSession()` implement the AI SDK
-`Experimental_SandboxSession` contract:
+`HarnessV1NetworkSandboxSession` contract, including the
+`Experimental_SandboxSession` file and process methods:
 
 - `description`
 - `readFile`, `readBinaryFile`, `readTextFile`
 - `writeFile`, `writeBinaryFile`, `writeTextFile`
 - `spawn`
 - `run`
+- `id`, `defaultWorkingDirectory`, `ports`
+- `restricted`
+- `stop`, `destroy`
 
-It also exposes `containerId`, `image`, and `close()` for cleanup.
+Apple Container does not expose public port URLs, so `getPortUrl()` rejects
+with `HarnessCapabilityUnsupportedError`.
+
+It also exposes `containerId`, `image`, and `close()` for direct cleanup.

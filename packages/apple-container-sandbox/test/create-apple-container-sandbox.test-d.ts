@@ -8,6 +8,8 @@ import {
   type AppleContainerSandboxProcess,
   type AppleContainerSandboxProvider,
 } from "@lgrammel/apple-container-sandbox";
+import type { HarnessV1NetworkSandboxSession, HarnessV1SandboxProvider } from "@ai-sdk/harness";
+import type { Experimental_SandboxSession } from "@ai-sdk/provider-utils";
 
 test("createAppleContainerSandbox exposes the sandbox type", () => {
   const appleContainerSandbox = createAppleContainerSandbox({
@@ -23,8 +25,11 @@ test("createAppleContainerSandbox exposes the sandbox type", () => {
   });
 
   expectTypeOf(appleContainerSandbox).toEqualTypeOf<AppleContainerSandbox>();
-  expectTypeOf(appleContainerSandbox).toEqualTypeOf<AppleContainerSandboxProvider>();
+  expectTypeOf(appleContainerSandbox).toExtend<HarnessV1SandboxProvider>();
+  expectTypeOf(appleContainerSandbox).toExtend<AppleContainerSandboxProvider>();
   expectTypeOf(appleContainerSandbox.name).toEqualTypeOf<"apple-container-sandbox">();
+  expectTypeOf(appleContainerSandbox.specificationVersion).toEqualTypeOf<"harness-sandbox-v1">();
+  expectTypeOf(appleContainerSandbox.providerId).toEqualTypeOf<string>();
   expectTypeOf(appleContainerSandbox.options).toEqualTypeOf<AppleContainerSandboxOptions>();
 });
 
@@ -32,6 +37,14 @@ test("sandbox sessions match the AI SDK method shapes", () => {
   type Session = Awaited<ReturnType<AppleContainerSandbox["createSession"]>>;
 
   expectTypeOf<Session>().toEqualTypeOf<AppleContainerSandboxSession>();
+  expectTypeOf<Session>().toExtend<HarnessV1NetworkSandboxSession>();
+  expectTypeOf<Session["id"]>().toEqualTypeOf<string>();
+  expectTypeOf<Session["defaultWorkingDirectory"]>().toEqualTypeOf<string>();
+  expectTypeOf<Session["ports"]>().toEqualTypeOf<ReadonlyArray<number>>();
+  expectTypeOf<Session["getPortUrl"]>().returns.resolves.toEqualTypeOf<string>();
+  expectTypeOf<Session["restricted"]>().returns.toEqualTypeOf<Experimental_SandboxSession>();
+  expectTypeOf<Session["stop"]>().returns.resolves.toEqualTypeOf<void>();
+  expectTypeOf<Session["destroy"]>().returns.resolves.toEqualTypeOf<void>();
   expectTypeOf<Session["description"]>().toEqualTypeOf<string>();
   expectTypeOf<
     Session["readFile"]

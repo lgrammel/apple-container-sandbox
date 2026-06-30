@@ -1,1 +1,1 @@
-export type { AppleContainerSandbox as AppleContainerSandboxProvider } from "./apple-container-sandbox.js";
+export type { HarnessV1SandboxProvider as AppleContainerSandboxProvider } from "@ai-sdk/harness";

@@ -2,7 +2,7 @@
 
 ## Runtime
 
-- Consumers must run Node.js 20 or newer.
+- Consumers must run Node.js 22 or newer.
 - Consumers must use ESM imports for the published package entry point.
 - Hosts must provide the Apple Container CLI as `container`, unless a custom
   `containerBinary` option is supplied.
@@ -14,11 +14,14 @@
 - `tsc` must emit the package entry point and declarations to `dist`.
 - Published package exports must point to `dist/index.js` and
   `dist/index.d.ts`.
+- Published package dependencies must include `@ai-sdk/harness`.
 
 ## Sandbox API
 
 - `createAppleContainerSandbox(options?)` must return a sandbox named
   `apple-container-sandbox`.
+- Returned sandboxes must implement the AI SDK `HarnessV1SandboxProvider`
+  contract with specification version `harness-sandbox-v1`.
 - The sandbox must preserve the supplied options object.
 - Supported option fields are `image`, `cwd`, `env`, `containerBinary`,
   `containerArgs`, `name`, and `keepContainer`.
@@ -28,6 +31,10 @@
 ## Sandbox Sessions
 
 - `createSession()` must create and start a long-lived Apple container.
+- `createSession({ sessionId })` must use `sessionId` as the container id when
+  no explicit `name` option is configured.
+- `createSession({ onFirstCreate })` must run the hook once after container
+  startup with the restricted sandbox session surface.
 - Sandbox commands must execute through `container exec` and `/bin/sh -lc`.
 - Session-level `env` values must apply to commands, and per-command `env`
   values must take precedence.
@@ -40,3 +47,7 @@
   non-zero command exits.
 - `close()` must stop and delete the Apple container unless `keepContainer` is
   true.
+- Harness session `stop()` and `destroy()` must be idempotent aliases for
+  `close()`.
+- Harness port URL exposure is unsupported and must reject with
+  `HarnessCapabilityUnsupportedError`.

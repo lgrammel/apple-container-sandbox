@@ -1,6 +1,9 @@
 import { spawn as spawnChildProcess } from "node:child_process";
 import { Readable } from "node:stream";
 
+import { HarnessCapabilityUnsupportedError } from "@ai-sdk/harness";
+import type { Experimental_SandboxSession } from "@ai-sdk/provider-utils";
+
 import { AppleContainerSandboxError } from "./apple-container-sandbox-error.js";
 import type { AppleContainerSandboxProcess } from "./apple-container-sandbox-process.js";
 import type { AppleContainerSandboxSessionOptions } from "./apple-container-sandbox-session-options.js";
@@ -21,8 +24,11 @@ import type { WriteFileOptions } from "./write-file-options.js";
 
 export class AppleContainerSandboxSession {
   readonly containerId: string;
+  readonly defaultWorkingDirectory: string;
   readonly description: string;
+  readonly id: string;
   readonly image: string;
+  readonly ports: ReadonlyArray<number> = [];
 
   #closed = false;
   #containerBinary: string;
@@ -43,6 +49,8 @@ export class AppleContainerSandboxSession {
     this.#env = env;
     this.#keepContainer = keepContainer;
     this.containerId = containerId;
+    this.defaultWorkingDirectory = cwd;
+    this.id = containerId;
     this.image = image;
     this.description = [
       `Apple Container sandbox running image ${image}.`,
@@ -230,6 +238,37 @@ export class AppleContainerSandboxSession {
       stdout: new TextDecoder().decode(stdout),
       stderr: new TextDecoder().decode(stderr),
     };
+  }
+
+  async getPortUrl(_options: {
+    port: number;
+    protocol?: "http" | "https" | "ws";
+  }): Promise<string> {
+    throw new HarnessCapabilityUnsupportedError({
+      message: "Apple Container sandbox sessions do not expose public port URLs.",
+    });
+  }
+
+  restricted(): Experimental_SandboxSession {
+    return {
+      description: this.description,
+      readFile: (options) => this.readFile(options),
+      readBinaryFile: (options) => this.readBinaryFile(options),
+      readTextFile: (options) => this.readTextFile(options),
+      writeFile: (options) => this.writeFile(options),
+      writeBinaryFile: (options) => this.writeBinaryFile(options),
+      writeTextFile: (options) => this.writeTextFile(options),
+      spawn: (options) => this.spawn(options),
+      run: (options) => this.run(options),
+    };
+  }
+
+  async stop(): Promise<void> {
+    await this.close();
+  }
+
+  async destroy(): Promise<void> {
+    await this.close();
   }
 
   async close({ force = true }: { force?: boolean } = {}): Promise<void> {
