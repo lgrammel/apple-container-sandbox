@@ -1,61 +1,53 @@
 # @lgrammel/apple-container-sandbox
 
-AI SDK sandbox provider backed by Apple Container Sandboxes.
+Run AI SDK sandbox sessions in Apple Container on your Mac.
 
-## Status
+`@lgrammel/apple-container-sandbox` is an AI SDK Harness V1 sandbox provider
+that creates a long-lived Apple Container session for each sandbox. It gives
+AI agents and local tools a Docker-compatible image, isolated file access,
+command execution, and optional localhost port publishing without leaving your
+Apple silicon development machine.
 
-This package implements the AI SDK Harness V1 sandbox provider shape using the
-Apple Container CLI. Each session creates a long-lived container from a
-Docker-compatible image, runs commands with `container exec`, and removes the
-container when the session is closed.
+## Why use it
 
-## Apple Container setup
+- Use the AI SDK sandbox API with Apple Container instead of a remote sandbox
+  service.
+- Run commands in Docker-compatible images through the Apple Container CLI.
+- Read and write files inside the sandbox with the AI SDK
+  `Experimental_SandboxSession` methods.
+- Publish selected sandbox ports on `127.0.0.1` for local bridges, servers, or
+  harness integrations.
+- Clean up containers automatically when a session stops.
 
-`@lgrammel/apple-container-sandbox` shells out to the Apple Container CLI. By
-default, the executable must be available as `container` on `PATH`.
+## Requirements
 
-Apple Container requires an Apple silicon Mac running macOS 26 or newer.
+- Apple silicon Mac
+- macOS 26 or newer
+- Apple Container CLI available as `container`, or a custom `containerBinary`
+  option
+- Node.js 22 or newer
+- ESM project configuration
 
-Install Apple Container with Homebrew:
+## Quick start
+
+Install Apple Container:
 
 ```sh
 brew install container
+container system start
+container --version
 ```
 
-Or download the latest signed installer package from the
+If you do not use Homebrew, download a signed installer from the
 [Apple Container releases page](https://github.com/apple/container/releases).
 
-Start the Apple Container system service:
-
-```sh
-container system start
-```
-
-Verify the CLI is available:
-
-```sh
-container --version
-container list --all
-```
-
-If `container` is installed but not on `PATH`, either add its directory to
-`PATH` or pass an explicit binary path:
-
-```ts
-const appleContainerSandbox = createAppleContainerSandbox({
-  containerBinary: "/opt/homebrew/bin/container",
-});
-```
-
-## Install
+Install the sandbox provider:
 
 ```sh
 pnpm add @lgrammel/apple-container-sandbox
 ```
 
-Requires Node.js 22 or newer.
-
-## Usage
+Write a file, run it in a sandbox, read the result, and stop the session:
 
 ```ts
 import { createAppleContainerSandbox } from "@lgrammel/apple-container-sandbox";
@@ -63,7 +55,6 @@ import { createAppleContainerSandbox } from "@lgrammel/apple-container-sandbox";
 const appleContainerSandbox = createAppleContainerSandbox({
   image: "node:22",
   cwd: "/workspace",
-  ports: [4100],
 });
 
 const sandboxSession = await appleContainerSandbox.createSession();
@@ -71,18 +62,52 @@ const sandboxSession = await appleContainerSandbox.createSession();
 try {
   await sandboxSession.writeTextFile({
     path: "/workspace/example.js",
-    content: "console.log('Hello from the sandbox');",
+    content: [
+      "const message = 'Hello from Apple Container Sandbox';",
+      "await import('node:fs/promises').then((fs) =>",
+      "  fs.writeFile('/workspace/result.txt', message),",
+      ");",
+      "console.log(message);",
+    ].join("\n"),
   });
 
-  const result = await sandboxSession.run({
+  const runResult = await sandboxSession.run({
     command: "node /workspace/example.js",
   });
 
-  console.log(result.stdout.trim());
-  console.log(await sandboxSession.getPortUrl({ port: 4100 }));
+  console.log(runResult.stdout.trim());
+  console.log(await sandboxSession.readTextFile({ path: "/workspace/result.txt" }));
 } finally {
   await sandboxSession.stop();
 }
+```
+
+In this repository, run the workspace example:
+
+```sh
+pnpm example
+```
+
+## Local ports
+
+Pass `ports` when the sandbox needs to expose a local service or bridge. Each
+configured port is published on `127.0.0.1` with the same host and container
+port.
+
+```ts
+const appleContainerSandbox = createAppleContainerSandbox({
+  image: "node:22",
+  cwd: "/workspace",
+  ports: [4100],
+});
+
+const sandboxSession = await appleContainerSandbox.createSession();
+const bridgeUrl = await sandboxSession.getPortUrl({
+  port: 4100,
+  protocol: "ws",
+});
+
+console.log(bridgeUrl); // ws://127.0.0.1:4100
 ```
 
 ## Codex harness example
@@ -106,22 +131,38 @@ Optional environment variables:
 - `CODEX_BRIDGE_PORT`: local bridge port. Defaults to `4100`.
 - `CODEX_SESSION_ID`: deterministic Apple Container session id.
 
-## Options
+## Configuration
+
+```ts
+const appleContainerSandbox = createAppleContainerSandbox({
+  image: "node:22",
+  cwd: "/workspace",
+  env: {
+    NODE_ENV: "development",
+  },
+  ports: [4100],
+  containerBinary: "/opt/homebrew/bin/container",
+  keepContainer: false,
+});
+```
 
 - `image`: Docker-compatible image for the sandbox. Defaults to
   `alpine:latest`.
 - `cwd`: default working directory inside the sandbox. Defaults to
   `/workspace`.
 - `env`: default environment variables for sandbox commands.
+- `ports`: TCP ports published on `127.0.0.1` with the same host and container
+  port.
 - `containerBinary`: Apple Container CLI binary. Defaults to `container`.
 - `containerArgs`: extra arguments passed to `container create` before the
   image name.
-- `ports`: TCP ports published on `127.0.0.1` with the same host and container
-  port.
 - `name`: explicit container name. A random name is generated when omitted.
 - `keepContainer`: keep the container after `stop()`. Defaults to `false`.
 
-## Provider and Session API
+If `container` is installed but not on `PATH`, either add its directory to
+`PATH` or set `containerBinary`.
+
+## API surface
 
 `createAppleContainerSandbox()` returns an AI SDK
 `HarnessV1SandboxProvider`.
@@ -130,20 +171,25 @@ Sessions returned by `createSession()` implement the AI SDK
 `HarnessV1NetworkSandboxSession` contract, including the
 `Experimental_SandboxSession` file and process methods:
 
-- `description`
 - `readFile`, `readBinaryFile`, `readTextFile`
 - `writeFile`, `writeBinaryFile`, `writeTextFile`
 - `spawn`
 - `run`
-- `id`, `defaultWorkingDirectory`, `ports`
-- `restricted`
+- `getPortUrl`
 - `stop`, `destroy`
 
-Configured ports resolve to local URLs through `getPortUrl()`, for example
-`ws://127.0.0.1:4100`. Unconfigured ports reject with
-`HarnessCapabilityUnsupportedError`.
+Session metadata includes `description`, `id`, `image`,
+`defaultWorkingDirectory`, `ports`, and `restricted`.
 
-It also exposes `image` for direct inspection.
+Configured ports resolve to local URLs through `getPortUrl()`. Unconfigured
+ports reject with `HarnessCapabilityUnsupportedError`.
+
+## Status
+
+This package implements the AI SDK Harness V1 sandbox provider shape using the
+Apple Container CLI. Each session creates a long-lived container from a
+Docker-compatible image, runs commands with `container exec`, and removes the
+container when the session is closed unless `keepContainer` is enabled.
 
 ## License
 
