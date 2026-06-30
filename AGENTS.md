@@ -29,6 +29,9 @@ returns a provider object, and `createSandbox()` intentionally throws
 - Keep public API changes reflected in both
   `packages/apple-container-sandbox/src/index.js` and
   `packages/apple-container-sandbox/src/index.d.ts`.
+- Keep `packages/apple-container-sandbox/REQUIREMENTS.md` accurate, concise,
+  and non-contradictory. Update it whenever code changes affect runtime,
+  public API, packaging, environment, or sandbox behavior requirements.
 - Keep package usage examples aligned between the root README,
   `packages/apple-container-sandbox/README.md`, and `apps/example`.
 - Prefer small, focused changes that preserve the existing ESM JavaScript style.

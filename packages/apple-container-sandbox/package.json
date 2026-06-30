@@ -15,7 +15,8 @@
   },
   "files": [
     "src",
-    "README.md"
+    "README.md",
+    "REQUIREMENTS.md"
   ],
   "repository": {
     "type": "git",
