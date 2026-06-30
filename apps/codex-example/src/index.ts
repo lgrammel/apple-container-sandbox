@@ -132,14 +132,10 @@ function printCodexEvent(event: HarnessV1StreamPart) {
       console.log(`\n[file] ${event.event}: ${event.path}`);
       break;
     case "finish":
-      console.log(`\n[finish] ${formatEventValue(event.finishReason)}`);
+      console.log(`\n[finish] ${event.finishReason.unified}`);
       break;
     case "error":
       console.error(event.error);
       break;
   }
-}
-
-function formatEventValue(value: unknown) {
-  return typeof value === "string" ? value : JSON.stringify(value);
 }
