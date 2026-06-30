@@ -22,6 +22,7 @@ export function createAppleContainerSandbox(
     env: options.env ?? {},
     image: options.image ?? defaultImage,
     keepContainer: options.keepContainer ?? false,
+    memory: options.memory,
     name: options.name,
     ports: normalizePorts(options.ports ?? []),
   };
@@ -50,6 +51,7 @@ export function createAppleContainerSandbox(
             id,
             ...createEnvArgs(normalizedOptions.env),
             ...createPortArgs(normalizedOptions.ports),
+            ...createMemoryArgs(normalizedOptions.memory),
             ...normalizedOptions.containerArgs,
             normalizedOptions.image,
             "/bin/sh",
@@ -108,4 +110,8 @@ function normalizePorts(ports: ReadonlyArray<number>): ReadonlyArray<number> {
 
 function createPortArgs(ports: ReadonlyArray<number>): string[] {
   return ports.flatMap((port) => ["--publish", `127.0.0.1:${port}:${port}/tcp`]);
+}
+
+function createMemoryArgs(memory: string | undefined): string[] {
+  return memory == null ? [] : ["--memory", memory];
 }

@@ -31,6 +31,13 @@ export interface AppleContainerSandboxOptions {
   containerArgs?: string[];
 
   /**
+   * Amount of memory to allocate to the container.
+   *
+   * Passed to `container create --memory`.
+   */
+  memory?: string;
+
+  /**
    * TCP ports to publish on 127.0.0.1 with the same host and container port.
    */
   ports?: ReadonlyArray<number>;

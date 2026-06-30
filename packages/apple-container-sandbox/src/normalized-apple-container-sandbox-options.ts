@@ -5,6 +5,7 @@ export interface NormalizedAppleContainerSandboxOptions {
   env: Record<string, string>;
   image: string;
   keepContainer: boolean;
+  memory?: string;
   name?: string;
   ports: ReadonlyArray<number>;
 }

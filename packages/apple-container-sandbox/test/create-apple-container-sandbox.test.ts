@@ -88,6 +88,7 @@ test("publishes configured ports and resolves local port urls", async () => {
     containerBinary,
     cwd,
     image: "fake-node:latest",
+    memory: "2G",
     name: "port-session",
     ports: [4100, 4100, 5200],
   });
@@ -121,6 +122,8 @@ test("publishes configured ports and resolves local port urls", async () => {
       "127.0.0.1:4100:4100/tcp",
       "--publish",
       "127.0.0.1:5200:5200/tcp",
+      "--memory",
+      "2G",
       "fake-node:latest",
       "/bin/sh",
       "-lc",

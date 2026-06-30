@@ -20,6 +20,7 @@ test("createAppleContainerSandbox exposes the sandbox type", () => {
     },
     image: "node:22",
     keepContainer: true,
+    memory: "2G",
     name: "typed-session",
     ports: [4100],
   });

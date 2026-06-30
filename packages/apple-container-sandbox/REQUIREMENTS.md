@@ -27,9 +27,11 @@
   contract with specification version `harness-sandbox-v1`.
 - The sandbox must preserve the supplied options object.
 - Supported option fields are `image`, `cwd`, `env`, `containerBinary`,
-  `containerArgs`, `ports`, `name`, and `keepContainer`.
+  `containerArgs`, `memory`, `ports`, `name`, and `keepContainer`.
 - `image` defaults to `alpine:latest`.
 - `cwd` defaults to `/workspace`.
+- `memory`, when supplied, must be passed to `container create` with
+  `--memory`.
 - `ports` defaults to an empty array.
 - `ports` values must be unique in the normalized session surface and must be
   valid TCP port numbers.

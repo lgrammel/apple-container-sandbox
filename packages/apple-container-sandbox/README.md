@@ -140,6 +140,7 @@ const appleContainerSandbox = createAppleContainerSandbox({
   env: {
     NODE_ENV: "development",
   },
+  memory: "2G",
   ports: [4100],
   containerBinary: "/opt/homebrew/bin/container",
   keepContainer: false,
@@ -151,6 +152,8 @@ const appleContainerSandbox = createAppleContainerSandbox({
 - `cwd`: default working directory inside the sandbox. Defaults to
   `/workspace`.
 - `env`: default environment variables for sandbox commands.
+- `memory`: amount of memory allocated to the container. Passed to
+  `container create --memory`.
 - `ports`: TCP ports published on `127.0.0.1` with the same host and container
   port.
 - `containerBinary`: Apple Container CLI binary. Defaults to `container`.
