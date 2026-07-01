@@ -1,5 +1,11 @@
 # @lgrammel/apple-container-sandbox
 
+## 1.0.0
+
+### Major Changes
+
+- a50ad89: Refresh README examples and add an AI SDK shell tool workspace example.
+
 ## 0.1.0
 
 ### Minor Changes
