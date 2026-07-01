@@ -51,6 +51,21 @@ importers:
         specifier: workspace:*
         version: link:../../packages/apple-container-sandbox
 
+  apps/tool-example:
+    dependencies:
+      '@lgrammel/apple-container-sandbox':
+        specifier: workspace:*
+        version: link:../../packages/apple-container-sandbox
+      ai:
+        specifier: 7.0.8
+        version: 7.0.8(zod@4.4.3)
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+
   packages/apple-container-sandbox:
     dependencies:
       '@ai-sdk/harness':

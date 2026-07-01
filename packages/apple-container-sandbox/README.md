@@ -28,7 +28,7 @@ Apple silicon development machine.
 - Node.js 22 or newer
 - ESM project configuration
 
-## Quick start
+## Examples
 
 Install Apple Container:
 
@@ -46,6 +46,8 @@ Install the sandbox provider:
 ```sh
 pnpm add @lgrammel/apple-container-sandbox
 ```
+
+### Direct Usage
 
 Write a file, run it in a sandbox, read the result, and stop the session:
 
@@ -88,29 +90,71 @@ In this repository, run the workspace example:
 pnpm example
 ```
 
-## Local ports
+### AI SDK Shell Tool
 
-Pass `ports` when the sandbox needs to expose a local service or bridge. Each
-configured port is published on `127.0.0.1` with the same host and container
-port.
+The `apps/tool-example` package shows how to pass an Apple Container sandbox to
+AI SDK `generateText` with `experimental_sandbox`. Its shell tool uses the
+sandbox from tool execution options and runs commands with
+`sandbox.run(...)`.
 
 ```ts
+import { generateText, isStepCount, tool } from "ai";
+import { z } from "zod/v4";
+import { createAppleContainerSandbox } from "@lgrammel/apple-container-sandbox";
+
 const appleContainerSandbox = createAppleContainerSandbox({
   image: "node:22",
   cwd: "/workspace",
-  ports: [4100],
+});
+
+const shellTool = tool({
+  description: "Run a shell command inside the Apple Container sandbox.",
+  inputSchema: z.object({
+    command: z.string(),
+    workingDirectory: z.string().optional(),
+  }),
+  execute: async ({ command, workingDirectory }, { experimental_sandbox, abortSignal }) => {
+    if (!experimental_sandbox) {
+      throw new Error("The shell tool requires an AI SDK experimental_sandbox.");
+    }
+
+    return experimental_sandbox.run({
+      command,
+      workingDirectory,
+      abortSignal,
+    });
+  },
 });
 
 const sandboxSession = await appleContainerSandbox.createSession();
-const bridgeUrl = await sandboxSession.getPortUrl({
-  port: 4100,
-  protocol: "ws",
-});
 
-console.log(bridgeUrl); // ws://127.0.0.1:4100
+try {
+  const result = await generateText({
+    model: "openai/gpt-4.1-mini",
+    tools: {
+      shell: shellTool,
+    },
+    experimental_sandbox: sandboxSession,
+    stopWhen: isStepCount(3),
+    prompt: "Use the shell tool to create and run a small Node.js file.",
+  });
+
+  console.log(result.text);
+} finally {
+  await sandboxSession.stop();
+}
 ```
 
-## Codex harness example
+In this repository, run the workspace example:
+
+```sh
+cp apps/tool-example/.env.example apps/tool-example/.env
+pnpm example:tool
+```
+
+Set `AI_GATEWAY_API_KEY` and `TOOL_MODEL` in `apps/tool-example/.env`.
+
+### AI SDK Codex Harness
 
 The `apps/codex-example` package runs
 [`@ai-sdk/harness-codex`](https://github.com/vercel/ai/tree/main/packages/harness-codex)
@@ -165,34 +209,17 @@ const appleContainerSandbox = createAppleContainerSandbox({
 If `container` is installed but not on `PATH`, either add its directory to
 `PATH` or set `containerBinary`.
 
-## API surface
+Configured local ports resolve through `getPortUrl()`:
 
-`createAppleContainerSandbox()` returns an AI SDK
-`HarnessV1SandboxProvider`.
+```ts
+const sandboxSession = await appleContainerSandbox.createSession();
+const bridgeUrl = await sandboxSession.getPortUrl({
+  port: 4100,
+  protocol: "ws",
+});
 
-Sessions returned by `createSession()` implement the AI SDK
-`HarnessV1NetworkSandboxSession` contract, including the
-`Experimental_SandboxSession` file and process methods:
-
-- `readFile`, `readBinaryFile`, `readTextFile`
-- `writeFile`, `writeBinaryFile`, `writeTextFile`
-- `spawn`
-- `run`
-- `getPortUrl`
-- `stop`, `destroy`
-
-Session metadata includes `description`, `id`, `image`,
-`defaultWorkingDirectory`, `ports`, and `restricted`.
-
-Configured ports resolve to local URLs through `getPortUrl()`. Unconfigured
-ports reject with `HarnessCapabilityUnsupportedError`.
-
-## Status
-
-This package implements the AI SDK Harness V1 sandbox provider shape using the
-Apple Container CLI. Each session creates a long-lived container from a
-Docker-compatible image, runs commands with `container exec`, and removes the
-container when the session is closed unless `keepContainer` is enabled.
+console.log(bridgeUrl); // ws://127.0.0.1:4100
+```
 
 ## License
 

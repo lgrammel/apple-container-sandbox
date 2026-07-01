@@ -1,0 +1,17 @@
+{
+  "name": "tool-example",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "pnpm --filter @lgrammel/apple-container-sandbox build && pnpm run build && node dist/index.js",
+    "test": "pnpm --filter @lgrammel/apple-container-sandbox build && pnpm run build && node --test",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@lgrammel/apple-container-sandbox": "workspace:*",
+    "ai": "7.0.8",
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
+  }
+}
