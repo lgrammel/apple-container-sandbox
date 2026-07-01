@@ -1,5 +1,11 @@
 # @lgrammel/apple-container-sandbox
 
+## 1.1.0
+
+### Minor Changes
+
+- 6cb01a3: Add a top-level `mounts` option for binding host directories into Apple Container sandbox sessions.
+
 ## 1.0.0
 
 ### Major Changes
