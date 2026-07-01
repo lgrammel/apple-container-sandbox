@@ -28,11 +28,17 @@
   contract with specification version `harness-sandbox-v1`.
 - The sandbox must preserve the supplied options object.
 - Supported option fields are `image`, `cwd`, `env`, `containerBinary`,
-  `containerArgs`, `memory`, `ports`, `name`, and `keepContainer`.
+  `containerArgs`, `memory`, `mounts`, `ports`, `name`, and `keepContainer`.
 - `image` defaults to `alpine:latest`.
 - `cwd` defaults to `/workspace`.
 - `memory`, when supplied, must be passed to `container create` with
   `--memory`.
+- `mounts`, when supplied, must be passed to `container create` with
+  `--mount type=bind`.
+- Mount `hostPath` values must resolve to existing host directories.
+- Mount `containerPath` values must be absolute paths inside the container.
+- Mount paths must not contain commas or equal signs because Apple Container
+  mount flags use comma-separated key-value syntax.
 - `ports` defaults to an empty array.
 - `ports` values must be unique in the normalized session surface and must be
   valid TCP port numbers.

@@ -2,6 +2,7 @@ import { expectTypeOf, test } from "vitest";
 
 import {
   type AppleContainerSandbox,
+  type AppleContainerSandboxMount,
   AppleContainerSandboxSession,
   createAppleContainerSandbox,
   type AppleContainerSandboxOptions,
@@ -21,6 +22,13 @@ test("createAppleContainerSandbox exposes the sandbox type", () => {
     image: "node:22",
     keepContainer: true,
     memory: "2G",
+    mounts: [
+      {
+        hostPath: "/Users/example/project",
+        containerPath: "/workspace",
+        readOnly: true,
+      },
+    ],
     name: "typed-session",
     ports: [4100],
   });
@@ -32,6 +40,14 @@ test("createAppleContainerSandbox exposes the sandbox type", () => {
   expectTypeOf(appleContainerSandbox.specificationVersion).toEqualTypeOf<"harness-sandbox-v1">();
   expectTypeOf(appleContainerSandbox.providerId).toEqualTypeOf<string>();
   expectTypeOf(appleContainerSandbox.options).toEqualTypeOf<AppleContainerSandboxOptions>();
+});
+
+test("mount options are exposed as a public type", () => {
+  expectTypeOf<AppleContainerSandboxMount>().toEqualTypeOf<{
+    hostPath: string;
+    containerPath: string;
+    readOnly?: boolean;
+  }>();
 });
 
 test("sandbox sessions match the AI SDK method shapes", () => {
@@ -73,5 +89,15 @@ test("sandbox options reject unknown fields", () => {
   createAppleContainerSandbox({
     // @ts-expect-error unknown options should not be accepted
     unsupported: true,
+  });
+
+  createAppleContainerSandbox({
+    mounts: [
+      // @ts-expect-error mount containerPath is required
+      {
+        hostPath: "/host",
+        readOnly: true,
+      },
+    ],
   });
 });

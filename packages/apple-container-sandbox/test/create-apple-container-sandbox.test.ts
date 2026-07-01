@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, realpath } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, realpath, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect, test } from "vitest";
@@ -138,12 +138,140 @@ test("publishes configured ports and resolves local port urls", async () => {
   }
 });
 
+test("passes configured host directory mounts to container create", async () => {
+  const containerBinary = await createFakeContainerCli();
+  const cwd = await realpath(await mkdtemp(join(tmpdir(), "apple-container-sandbox-")));
+  const writableHostPath = join(cwd, "writable-host");
+  const readOnlyHostPath = join(cwd, "read-only-host");
+  await mkdir(writableHostPath);
+  await mkdir(readOnlyHostPath);
+  const logPath = join(cwd, "container-commands.ndjson");
+  const previousLogPath = process.env.FAKE_CONTAINER_LOG;
+  process.env.FAKE_CONTAINER_LOG = logPath;
+
+  const appleContainerSandbox = createAppleContainerSandbox({
+    containerBinary,
+    cwd,
+    image: "fake-node:latest",
+    mounts: [
+      {
+        hostPath: writableHostPath,
+        containerPath: "/workspace",
+      },
+      {
+        hostPath: readOnlyHostPath,
+        containerPath: "/readonly",
+        readOnly: true,
+      },
+    ],
+    name: "mount-session",
+  });
+
+  try {
+    const sandboxSession = await appleContainerSandbox.createSession();
+
+    try {
+      expect(sandboxSession.id).toBe("mount-session");
+    } finally {
+      await sandboxSession.stop().catch(() => {});
+    }
+
+    const commands = (await readFile(logPath, "utf8"))
+      .trim()
+      .split("\n")
+      .map((line) => JSON.parse(line) as string[]);
+
+    expect(commands[0]).toEqual([
+      "create",
+      "--name",
+      "mount-session",
+      "--mount",
+      `type=bind,src=${writableHostPath},dst=/workspace`,
+      "--mount",
+      `type=bind,src=${readOnlyHostPath},dst=/readonly,readonly`,
+      "fake-node:latest",
+      "/bin/sh",
+      "-lc",
+      expect.stringContaining("while :; do sleep"),
+    ]);
+  } finally {
+    if (previousLogPath == null) {
+      delete process.env.FAKE_CONTAINER_LOG;
+    } else {
+      process.env.FAKE_CONTAINER_LOG = previousLogPath;
+    }
+  }
+});
+
 test("rejects invalid port options", () => {
   expect(() =>
     createAppleContainerSandbox({
       ports: [0],
     }),
   ).toThrow(RangeError);
+});
+
+test("rejects invalid mount options", async () => {
+  const cwd = await realpath(await mkdtemp(join(tmpdir(), "apple-container-sandbox-")));
+  const hostDirectory = join(cwd, "host");
+  const hostFile = join(cwd, "file.txt");
+  await mkdir(hostDirectory);
+  await writeFile(hostFile, "not a directory");
+
+  expect(() =>
+    createAppleContainerSandbox({
+      mounts: [
+        {
+          hostPath: join(cwd, "missing"),
+          containerPath: "/workspace",
+        },
+      ],
+    }),
+  ).toThrow(TypeError);
+
+  expect(() =>
+    createAppleContainerSandbox({
+      mounts: [
+        {
+          hostPath: hostFile,
+          containerPath: "/workspace",
+        },
+      ],
+    }),
+  ).toThrow(TypeError);
+
+  expect(() =>
+    createAppleContainerSandbox({
+      mounts: [
+        {
+          hostPath: hostDirectory,
+          containerPath: "workspace",
+        },
+      ],
+    }),
+  ).toThrow(TypeError);
+
+  expect(() =>
+    createAppleContainerSandbox({
+      mounts: [
+        {
+          hostPath: hostDirectory,
+          containerPath: "/work,space",
+        },
+      ],
+    }),
+  ).toThrow(TypeError);
+
+  expect(() =>
+    createAppleContainerSandbox({
+      mounts: [
+        {
+          hostPath: hostDirectory,
+          containerPath: "/work=space",
+        },
+      ],
+    }),
+  ).toThrow(TypeError);
 });
 
 test("uses the harness session id and onFirstCreate hook", async () => {

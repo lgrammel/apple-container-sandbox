@@ -3,7 +3,10 @@ export { appleContainerSandboxPackageName } from "./apple-container-sandbox-pack
 export { AppleContainerSandboxSession } from "./apple-container-sandbox-session.js";
 export { createAppleContainerSandbox } from "./create-apple-container-sandbox.js";
 export type { AppleContainerSandbox } from "./apple-container-sandbox.js";
-export type { AppleContainerSandboxOptions } from "./apple-container-sandbox-options.js";
+export type {
+  AppleContainerSandboxMount,
+  AppleContainerSandboxOptions,
+} from "./apple-container-sandbox-options.js";
 export type { AppleContainerSandboxProcess } from "./apple-container-sandbox-process.js";
 export type { AppleContainerSandboxProvider } from "./apple-container-sandbox-provider.js";
 export type { AppleContainerSandboxSessionOptions } from "./apple-container-sandbox-session-options.js";
